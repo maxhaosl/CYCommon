@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Inc">
+      <UniqueIdentifier>{39a036cf-5c45-414a-85e1-3d514bf97324}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src">
+      <UniqueIdentifier>{3bf56357-220f-4311-b1fa-a92c515b5469}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Inc\CYCommon">
+      <UniqueIdentifier>{d0881c55-a50c-4dc9-8f5e-4436cea7636b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Inc\CYCommon\Common">
+      <UniqueIdentifier>{6046ec7e-70b1-47f1-98e2-4b39fe4923a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Common">
+      <UniqueIdentifier>{805c78d8-3596-4edd-8df1-32cdb29710f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Inc\CYCommon\Common\Exception">
+      <UniqueIdentifier>{b3fa0980-b506-41a9-b34a-cc094799c2b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Inc\CYCommon\Common\Message">
+      <UniqueIdentifier>{4e57a72e-808d-475d-a3ae-b9b0e076c19a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Inc\CYCommon\Common\Structure">
+      <UniqueIdentifier>{18788c96-f661-4615-9f8f-42641b66b611}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Inc\CYCommon\Common\Time">
+      <UniqueIdentifier>{43a70385-81fc-466f-b463-92131193e3e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Common\Exception">
+      <UniqueIdentifier>{3af5242d-13d0-4696-9550-6f4e1ea200a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Common\Message">
+      <UniqueIdentifier>{4a330640-5e61-4095-a441-88fc5e531743}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Common\Structure">
+      <UniqueIdentifier>{8659f955-c982-490f-921e-9b5f8f8cc61c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Common\Time">
+      <UniqueIdentifier>{454ac044-36db-45c9-aecf-bce20599fe5c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\Inc\CYCommon\CYCommon.hpp">
+      <Filter>Inc\CYCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Inc\CYCommon\CYCommonDefine.hpp">
+      <Filter>Inc\CYCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Inc\CYCommon\CYTypeDefine.hpp">
+      <Filter>Inc\CYCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Inc\CYCommon\Common\CYBind.hpp">
+      <Filter>Inc\CYCommon\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Inc\CYCommon\Common\CYDebugString.hpp">
+      <Filter>Inc\CYCommon\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Inc\CYCommon\Common\CYList.hpp">
+      <Filter>Inc\CYCommon\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Inc\CYCommon\Common\Exception\CYBaseException.hpp">
+      <Filter>Inc\CYCommon\Common\Exception</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Inc\CYCommon\Common\Exception\CYException.hpp">
+      <Filter>Inc\CYCommon\Common\Exception</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Inc\CYCommon\Common\Message\CYBaseMessage.hpp">
+      <Filter>Inc\CYCommon\Common\Message</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Inc\CYCommon\Common\Structure\CYStringUtils.hpp">
+      <Filter>Inc\CYCommon\Common\Structure</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Inc\CYCommon\Common\Time\CYTimeStamps.hpp">
+      <Filter>Inc\CYCommon\Common\Time</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\Src\Common\CYDebugString.cpp">
+      <Filter>Src\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Common\Exception\CYBaseException.cpp">
+      <Filter>Src\Common\Exception</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Common\Message\CYBaseMessage.cpp">
+      <Filter>Src\Common\Message</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Common\Structure\CYStringUtils.cpp">
+      <Filter>Src\Common\Structure</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Common\Time\CYTimeStamps.cpp">
+      <Filter>Src\Common\Time</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

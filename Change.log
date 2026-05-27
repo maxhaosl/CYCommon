@@ -1,0 +1,21 @@
+CYCommon V1.0.0 features:
+1. Cross-platform support (Windows, macOS, iOS, Linux, Android)
+2. Unicode/ANSI dual-mode string support with automatic TCHAR mapping
+3. Exception hierarchy: CYBaseException and templated CYException
+4. Timestamp utilities with microsecond precision (CYTimeStamps)
+5. Base message infrastructure with channel, severity code, and thread id
+6. String conversion utilities (UTF-8/UTF-16/ANSI) via CYStringUtils
+7. Lock-free intrusive singly-linked list (CYList)
+8. Function binding utilities with optional try-catch wrapping (CYBind)
+9. Debug string output helper for Windows (DebugString)
+10. Smart pointer aliases: SharePtr, UniquePtr, WeakPtr, MakeShared, MakeUnique, MakeTuple
+11. Thread-safe lock helpers: UniqueLock, LockGuard
+12. Visibility-controlled DLL export/import macros (CYCOMMON_API)
+13. Consistent namespace: cry (CYCOMMON_NAMESPACE)
+14. Microsoft Visual Studio static library project (v143 toolset)
+
+Included dependencies:
+1. No external runtime dependencies — self-contained
+
+2026-05-26:
+1. Initial release: Built as a standalone static library. CYLogger consumes it natively through its bundled ThirdParty layout. Both CYLogger and CYCoroutine ship their own CYCommon copy under ThirdParty/; CYCommon itself remains platform-agnostic and does not pull in any third-party runtime.
