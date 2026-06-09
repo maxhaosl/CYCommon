@@ -58,11 +58,17 @@ if not "%LIB_TYPE%"=="Static" if not "%LIB_TYPE%"=="Shared" (
 )
 
 REM ---------- Validate TARGET_ARCH ----------
-if not "%TARGET_ARCH%"=="x64" if not "%TARGET_ARCH%"=="x86" if not "%TARGET_ARCH%"=="Win32" (
-    echo ERROR: TARGET_ARCH must be x64 or x86, got "%TARGET_ARCH%"
+REM Accept both CMake names (x64/x86) and output-dir names (x86_64/x86)
+set "_NORM_ARCH=%TARGET_ARCH%"
+if /I "%_NORM_ARCH%"=="x64" set "_NORM_ARCH=x86_64"
+if /I "%_NORM_ARCH%"=="x86_64" set "_NORM_ARCH=x86_64"
+if /I "%_NORM_ARCH%"=="x86" set "_NORM_ARCH=x86"
+if /I "%_NORM_ARCH%"=="Win32" set "_NORM_ARCH=x86"
+if not "%_NORM_ARCH%"=="x86_64" if not "%_NORM_ARCH%"=="x86" (
+    echo ERROR: TARGET_ARCH must be x64/x86_64 or x86/Win32, got "%TARGET_ARCH%"
     exit /b 1
 )
-if "%TARGET_ARCH%"=="Win32" set "TARGET_ARCH=x86"
+set "TARGET_ARCH=%_NORM_ARCH%"
 
 REM ---------- Validate CRT_TYPE ----------
 if /i "%CRT_TYPE%"=="MDD" set "CRT_TYPE=MDD"
@@ -87,32 +93,40 @@ if "%BUILD_TYPE%"=="Debug" (
 )
 
 REM ---------- Derive CMake generator ----------
+REM Map TARGET_ARCH to VS platform name and CMake arch
 if "%TARGET_ARCH%"=="x86" (
     set "VSCMD_ARCH=x86"
-    set "CMAKE_GEN_ARCH=x86"
+    set "CMAKE_GEN_ARCH=Win32"
 ) else (
     set "VSCMD_ARCH=x64"
     set "CMAKE_GEN_ARCH=x64"
 )
 
-echo ========================================
-echo CYCommon Windows Build
-echo ========================================
-echo   Build Type  : %BUILD_TYPE%
-echo   Library Type: %LIB_TYPE%
-echo   Architecture: %TARGET_ARCH%
-echo   CRT         : %CRT_TYPE%
-echo ========================================
-
 REM ---------- Find Visual Studio ----------
 set "VS_FOUND=0"
 set "VS_DIR="
 
-where vswhere >nul 2>&1
-if %ERRORLEVEL% EQU 0 (
-    for /f "tokens=*" %%i in ('vswhere -latest -products * -requires Microsoft.Component.MSBuild -property installationPath') do (
+set "VSWHERE_EXE="
+if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" (
+    set "VSWHERE_EXE=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
+) else if exist "%ProgramFiles%\Microsoft Visual Studio\Installer\vswhere.exe" (
+    set "VSWHERE_EXE=%ProgramFiles%\Microsoft Visual Studio\Installer\vswhere.exe"
+) else (
+    for /f "usebackq tokens=* delims=" %%i in (`where vswhere 2^>nul`) do (
+        if not defined VSWHERE_EXE set "VSWHERE_EXE=%%i"
+    )
+)
+
+if defined VSWHERE_EXE (
+    for /f "usebackq tokens=* delims=" %%i in (`"%VSWHERE_EXE%" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath 2^>nul`) do (
         set "VS_DIR=%%i"
         set "VS_FOUND=1"
+    )
+    if "%VS_FOUND%"=="0" (
+        for /f "usebackq tokens=* delims=" %%i in (`"%VSWHERE_EXE%" -latest -products * -requires Microsoft.Component.MSBuild -property installationPath 2^>nul`) do (
+            set "VS_DIR=%%i"
+            set "VS_FOUND=1"
+        )
     )
 )
 
@@ -133,18 +147,55 @@ if "%VS_FOUND%"=="0" (
 
 echo Found Visual Studio at: %VS_DIR%
 
+REM Detect VS version and set matching generator
+set "VS_GENERATOR=Visual Studio 17 2022"
+if /I not "%VS_DIR:2022=%"=="%VS_DIR%" (
+    set "VS_GENERATOR=Visual Studio 17 2022"
+) else if /I not "%VS_DIR:2019=%"=="%VS_DIR%" (
+    set "VS_GENERATOR=Visual Studio 16 2019"
+) else if /I not "%VS_DIR:2017=%"=="%VS_DIR%" (
+    set "VS_GENERATOR=Visual Studio 15 2017"
+)
+
+echo ========================================
+echo CYCommon Windows Build
+echo ========================================
+echo   Build Type  : %BUILD_TYPE%
+echo   Library Type: %LIB_TYPE%
+echo   Architecture: %TARGET_ARCH%
+echo   CRT         : %CRT_TYPE%
+echo ========================================
+
 REM ---------- Configure build environment ----------
+set "CURRENT_VS_ARCH=%VSCMD_ARG_TGT_ARCH%"
+if defined CURRENT_VS_ARCH if /I "%CURRENT_VS_ARCH%"=="amd64" set "CURRENT_VS_ARCH=x64"
+if defined VCINSTALLDIR if /I "%CURRENT_VS_ARCH%"=="%VSCMD_ARCH%" goto :after_vs_env
+
 set "VSCMDDIR=%VS_DIR%\Common7\Tools\VsDevCmd.bat"
 if not exist "%VSCMDDIR%" (
     set "VSCMDDIR=%VS_DIR%\VC\Auxiliary\Build\vcvarsall.bat"
 )
 
 if exist "%VSCMDDIR%" (
-    call "%VSCMDDIR%" %VSCMD_ARCH% >nul 2>&1
+    if /I "%VSCMDDIR:~-12%"=="vcvarsall.bat" (
+        if "%VSCMD_ARCH%"=="x64" (
+            call "%VSCMDDIR%" amd64 >nul 2>&1
+        ) else (
+            call "%VSCMDDIR%" x86 >nul 2>&1
+        )
+    ) else (
+        call "%VSCMDDIR%" -no_logo -arch=%VSCMD_ARCH% >nul 2>&1
+    )
+    if errorlevel 1 (
+        echo ERROR: Failed to initialize Visual Studio build environment.
+        exit /b 1
+    )
 ) else (
     echo WARNING: VsDevCmd.bat not found at "%VSCMDDIR%"
     echo You may need to manually configure the Visual Studio environment.
 )
+
+:after_vs_env
 
 REM ---------- Create output directory ----------
 if not exist "%SOURCE_DIR%\Bin\Windows\%TARGET_ARCH%\%CRT_TYPE%\%BUILD_TYPE%" (
@@ -153,6 +204,8 @@ if not exist "%SOURCE_DIR%\Bin\Windows\%TARGET_ARCH%\%CRT_TYPE%\%BUILD_TYPE%" (
 
 REM ---------- Create build directory ----------
 set "BUILD_DIR=%SCRIPT_DIR%out\Windows\%TARGET_ARCH%\%LIB_TYPE%\%CRT_TYPE%\%BUILD_TYPE%"
+if exist "%BUILD_DIR%\CMakeCache.txt" del /f /q "%BUILD_DIR%\CMakeCache.txt" >nul 2>&1
+if exist "%BUILD_DIR%\CMakeFiles" rmdir /s /q "%BUILD_DIR%\CMakeFiles" >nul 2>&1
 if not exist "%BUILD_DIR%" (
     mkdir "%BUILD_DIR%" 2>nul
     for /f "tokens=*" %%d in ("%BUILD_DIR%") do mkdir "%%~fd\." >nul 2>&1
@@ -167,12 +220,12 @@ if /i "%LIB_TYPE%"=="Shared" set "SHARED_FLAG=-DBUILD_SHARED_LIBS=ON"
 
 cmake -S "%SCRIPT_DIR%" ^
       -B "%BUILD_DIR%" ^
-      -G "Visual Studio 17 2022" ^
+      -G "%VS_GENERATOR%" ^
       -A %CMAKE_GEN_ARCH% ^
       -DCMAKE_BUILD_TYPE=%BUILD_TYPE% ^
       %SHARED_FLAG% ^
       -DWINDOWS_RUNTIME=%CRT_TYPE% ^
-      -DCYCOMMON_OUTPUT_BASE_DIR="%SOURCE_DIR%\Bin\Windows\%TARGET_ARCH%\%CRT_TYPE%"
+      -DCYCOMMON_OUTPUT_DIR="%SOURCE_DIR%\Bin\Windows\%TARGET_ARCH%"
 
 if %ERRORLEVEL% NEQ 0 (
     echo.

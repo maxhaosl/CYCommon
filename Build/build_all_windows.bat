@@ -14,7 +14,7 @@ set "BUILD_TYPES=%~3"
 set "CRT_TYPES=%~4"
 
 REM ---------- Defaults ----------
-if "%ARCHES%"=="" set "ARCHES=x64,x86"
+if "%ARCHES%"=="" set "ARCHES=x86_64,x86"
 if "%LIB_TYPES%"=="" set "LIB_TYPES=Static"
 if "%BUILD_TYPES%"=="" set "BUILD_TYPES=Release,Debug"
 if "%CRT_TYPES%"=="" set "CRT_TYPES=MD,MT"
@@ -38,8 +38,6 @@ for %%a in (%ARCHES%) do (
                 echo Building: arch=%%a lib=%%l type=%%b crt=%%c
                 echo ========================================
 
-                REM Skip invalid Debug + base-CRT combinations
-                REM (build_windows.bat auto-corrects them, but we skip for clarity)
                 call "%SCRIPT_DIR%build_windows.bat" %%b %%l %%a %%c
 
                 if %ERRORLEVEL% NEQ 0 (

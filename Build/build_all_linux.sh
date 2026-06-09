@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # ============================================================
-# CYCommon Linux Matrix Build Script
-# Builds all combinations of arch / build-type / lib-type
+# CYCommon Linux All Build Script
+# Builds Debug + Release static libraries in one run
 # ============================================================
 
 set -euo pipefail
@@ -11,33 +11,30 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SOURCE_DIR="$(dirname "$SCRIPT_DIR")"
 
 # ---------- Arguments ----------
-BUILD_TYPES="${1:-Release}"
-LIB_TYPES="${2:-ON}"
-ARCHES="${3:-x86_64}"
+BUILD_TYPES="${1:-Release,Debug}"
+ARCHES="${2:-x86_64}"
 
 echo "========================================"
-echo "CYCommon Linux Matrix Build"
+echo "CYCommon Linux All Build"
 echo "========================================"
-echo "  Build Types : $BUILD_TYPES"
-echo "  Lib Types   : $LIB_TYPES"
-echo "  Architectures: $ARCHES"
+echo "  Build Types   : $BUILD_TYPES"
+echo "  Architectures : $ARCHES"
+echo "  Library Type  : static only"
 echo "========================================"
 
 FAILED=0
 
 for BUILD_TYPE in $(echo "$BUILD_TYPES" | tr ',' ' '); do
-    for LIB_TYPE in $(echo "$LIB_TYPES" | tr ',' ' '); do
-        for TARGET_ARCH in $(echo "$ARCHES" | tr ',' ' '); do
-            echo ""
-            echo ">>> Building: arch=$TARGET_ARCH type=$BUILD_TYPE shared=$LIB_TYPE"
+    for TARGET_ARCH in $(echo "$ARCHES" | tr ',' ' '); do
+        echo ""
+        echo ">>> Building: arch=$TARGET_ARCH type=$BUILD_TYPE"
 
-            "$SCRIPT_DIR/build_linux.sh" "$BUILD_TYPE" "$LIB_TYPE" "$TARGET_ARCH"
+        "$SCRIPT_DIR/build_linux.sh" "$BUILD_TYPE" "$TARGET_ARCH"
 
-            if [ $? -ne 0 ]; then
-                echo "ERROR: build_linux.sh failed for arch=$TARGET_ARCH type=$BUILD_TYPE shared=$LIB_TYPE"
-                FAILED=1
-            fi
-        done
+        if [ $? -ne 0 ]; then
+            echo "ERROR: build_linux.sh failed for arch=$TARGET_ARCH type=$BUILD_TYPE"
+            FAILED=1
+        fi
     done
 done
 
@@ -51,6 +48,6 @@ fi
 
 echo ""
 echo "========================================"
-echo "All Linux matrix builds completed!"
+echo "All Linux builds completed!"
 echo "Output: $SOURCE_DIR/Bin/Linux/"
 echo "========================================"
